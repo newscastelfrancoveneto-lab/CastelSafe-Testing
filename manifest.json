@@ -1,0 +1,13 @@
+{
+  "name": "CastelSafe - ARPAV e Protezione civile",
+  "short_name": "CastelSafe",
+  "start_url": "/CastelSafe/",
+  "scope": "/CastelSafe/",
+  "display": "standalone",
+  "background_color": "#f0f4f8",
+  "theme_color": "#0e8a8a",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
