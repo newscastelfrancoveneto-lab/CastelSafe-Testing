@@ -886,10 +886,14 @@
     
     .info-area-badge { display: inline-block; border-radius: 6px; padding: 3px 8px; font-size: 0.75rem; font-weight: 700; color: #fff; margin-right: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-    .allerta-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--radius-md); margin-bottom: 8px; background: #f8fafc; border: 1px solid #e2e8f0; }
-    .allerta-row .bollino-lg { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
-    .allerta-row .label { font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
-    .allerta-row .livello { font-size: 0.85rem; font-weight: 800; margin-left: auto; text-transform: uppercase; }
+    .allerta-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-md); margin-bottom: 8px; background: #f8fafc; border: 1px solid #e2e8f0; }
+    .allerta-row .label { font-size: 0.82rem; font-weight: 600; color: var(--text-main); flex: 1; min-width: 0; }
+    .allerta-day-col { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; width: 40px; }
+    .allerta-day-col .bollino-lg { width: 24px; height: 24px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+    .allerta-day-col .day-lbl { font-size: 0.62rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+    .allerta-days-header { display: flex; align-items: center; gap: 10px; padding: 0 14px 6px 14px; }
+    .allerta-days-header .day-col-hdr { font-size: 0.68rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; text-align: center; width: 40px; flex-shrink: 0; }
+    .allerta-days-header .spacer { flex: 1; }
     
     .allerta-section-title {
 		  font-size: 0.74rem;
@@ -971,9 +975,11 @@
 
   <div id="allerta-bar" onclick="document.getElementById('allerta-modal').classList.add('open')">
     <div id="allerta-bar-inner">
-      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-idr"></div><span id="bar-label-idr">Idraulico</span></div>
-      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-idro"></div><span id="bar-label-idro">Idrogeologico</span></div>
-      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-temp"></div><span id="bar-label-temp">Temporali</span></div>
+      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-idr"></div><span id="bar-label-idr">Idr.</span></div>
+      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-idro"></div><span id="bar-label-idro">Idrog.</span></div>
+      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-temp"></div><span id="bar-label-temp">Temp.</span></div>
+      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-vento"></div><span id="bar-label-vento">Vento</span></div>
+      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-calore"></div><span id="bar-label-calore">Calore</span></div>
     </div>
     <!--<span id="allerta-bar-title">Allerta ARPAV</span> -->
     <span id="allerta-bar-chevron">
@@ -4228,9 +4234,25 @@ if ('serviceWorker' in navigator) {
 const ALLERTA_COLORS = { VERDE: '#10b981', GIALLO: '#eab308', ARANCIONE: '#f97316', ROSSO: '#ef4444' };
 const ALLERTA_ORDER  = ['VERDE', 'GIALLO', 'ARANCIONE', 'ROSSO'];
 
-function allertaBgColor(idr, idro, temp) {
-  const max = [idr, idro, temp].reduce((a, b) => ALLERTA_ORDER.indexOf(b) > ALLERTA_ORDER.indexOf(a) ? b : a, 'VERDE');
+function allertaBgColor(idr, idro, temp, vento, calore) {
+  const all = [idr, idro, temp, vento, calore].filter(Boolean);
+  if (!all.length) return '#64748b';
+  const max = all.reduce((a, b) => ALLERTA_ORDER.indexOf(b) > ALLERTA_ORDER.indexOf(a) ? b : a, 'VERDE');
   return ALLERTA_COLORS[max] || '#64748b';
+}
+
+// Restituisce i dati del giorno corrente da mostrare nella barra
+// Se siamo ancora nella giornata di "oggi" del bollettino → d.oggi
+// Se il giorno del bollettino è già passato → d.domani
+function getAllertaGiorno(d) {
+  if (!d || !d.oggi || !d.domani) return d;
+  const periodoOggi = d.oggi.periodo || '';
+  const match = periodoOggi.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  if (!match) return d.oggi;
+  const now = new Date();
+  const oggiDate = new Date(parseInt(match[3]), parseInt(match[2])-1, parseInt(match[1]));
+  const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return oggiDate.getTime() === todayDate.getTime() ? d.oggi : d.domani;
 }
 
 let lastAllertaSignature = null;
@@ -4240,9 +4262,13 @@ function getAllertaSignature(data) {
     idr: data?.idr || null,
     idro: data?.idro || null,
     temp: data?.temp || null,
+    vento: data?.vento || null,
+    calore: data?.calore || null,
     periodo: data?.periodo || null,
     meteo: data?.meteo || null,
-    suolo: data?.suolo || null
+    suolo: data?.suolo || null,
+    oggi: JSON.stringify(data?.oggi || null),
+    domani: JSON.stringify(data?.domani || null)
   });
 }
 
@@ -4250,33 +4276,64 @@ function renderAllerta(d) {
   if (!d || !d.idr) return;
   const signature = getAllertaSignature(d);
   lastAllertaSignature = signature;
+
+  // Valori del giorno corrente per la barra
+  const giorno = getAllertaGiorno(d);
+  const barIdr    = giorno?.idr    || d.idr    || 'VERDE';
+  const barIdro   = giorno?.idro   || d.idro   || 'VERDE';
+  const barTemp   = giorno?.temp   || d.temp   || 'VERDE';
+  const barVento  = giorno?.vento  || d.vento  || null;
+  const barCalore = giorno?.calore || d.calore || null;
+
   const bar = document.getElementById('allerta-bar');
   bar.classList.add('visible');
-  bar.style.background = allertaBgColor(d.idr, d.idro, d.temp);
+  bar.style.background = allertaBgColor(barIdr, barIdro, barTemp, barVento, barCalore);
   updatePanelTop();
 
-  ['idr','idro','temp'].forEach(k => {
+  // Aggiorna i 5 bollini nella barra
+  const barVals = { idr: barIdr, idro: barIdro, temp: barTemp, vento: barVento, calore: barCalore };
+  ['idr','idro','temp','vento','calore'].forEach(k => {
     const el = document.getElementById('bar-bollino-' + k);
-    const lbl = document.getElementById('bar-label-' + k);
-    if (el) el.style.background = ALLERTA_COLORS[d[k]] || '#64748b';
-    if (lbl) lbl.textContent = { idr:'Idraulico', idro:'Idrogeologico', temp:'Temporali' }[k];
+    if (el) el.style.background = ALLERTA_COLORS[barVals[k]] || '#64748b';
   });
 
+  // Modal: intestazione
   document.getElementById('allerta-periodo').textContent = d.periodo || '';
   document.getElementById('allerta-meteo').textContent = d.meteo || '';
   document.getElementById('allerta-suolo').textContent = d.suolo || '';
 
-  const rowsEl = document.getElementById('allerta-rows');
-  rowsEl.innerHTML = [
-    { key: 'idr',  label: 'Rischio Idraulico' },
-    { key: 'idro', label: 'Rischio Idrogeologico' },
-    { key: 'temp', label: 'Rischio Idrogeologico per Temporali' }
-  ].map(r => `<div class="allerta-row">
-    <div class="bollino-lg" style="background:${ALLERTA_COLORS[d[r.key]] || '#64748b'}"></div>
-    <span class="label">${r.label}</span>
-    <span class="livello">${d[r.key] || ''}</span>
-  </div>`).join('');
+  // Modal: tabella rischi con colonne oggi/domani
+  const oggi   = d.oggi   || null;
+  const domani = d.domani || null;
+  const bc = v => ALLERTA_COLORS[v] || '#cbd5e1';
+  const RISCHI = [
+    { key: 'idr',    label: 'Idraulico' },
+    { key: 'idro',   label: 'Idrogeologico' },
+    { key: 'temp',   label: 'Temporali' },
+    { key: 'vento',  label: 'Vento' },
+    { key: 'calore', label: 'Calore' }
+  ];
 
+  let headerHtml = '';
+  if (oggi && domani) {
+    headerHtml = '<div class="allerta-days-header"><span class="spacer"></span><span class="day-col-hdr">Oggi</span><span class="day-col-hdr">Domani</span></div>';
+  }
+
+  const rowsHtml = RISCHI.map(r => {
+    const vOggi   = oggi?.[r.key]   || null;
+    const vDomani = domani?.[r.key] || null;
+    const vAgg    = d[r.key]        || null;
+    if (oggi && domani) {
+      const colOggi   = `<div class="allerta-day-col"><div class="bollino-lg" style="background:${bc(vOggi)}"></div><span class="day-lbl">${vOggi || '—'}</span></div>`;
+      const colDomani = `<div class="allerta-day-col"><div class="bollino-lg" style="background:${bc(vDomani)}"></div><span class="day-lbl">${vDomani || '—'}</span></div>`;
+      return `<div class="allerta-row"><span class="label">${r.label}</span>${colOggi}${colDomani}</div>`;
+    } else if (vAgg) {
+      return `<div class="allerta-row"><span class="label">${r.label}</span><div class="allerta-day-col"><div class="bollino-lg" style="background:${bc(vAgg)}"></div><span class="day-lbl">${vAgg}</span></div></div>`;
+    }
+    return '';
+  }).filter(Boolean).join('');
+
+  document.getElementById('allerta-rows').innerHTML = headerHtml + rowsHtml;
   setTimeout(() => map.invalidateSize(), 300);
 }
 	
