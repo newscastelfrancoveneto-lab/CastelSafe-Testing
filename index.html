@@ -4273,67 +4273,102 @@ function getAllertaSignature(data) {
 }
 
 function renderAllerta(d) {
-  if (!d || !d.idr) return;
-  const signature = getAllertaSignature(d);
-  lastAllertaSignature = signature;
+  if (!d) return;
 
-  // Valori del giorno corrente per la barra
-  const giorno = getAllertaGiorno(d);
-  const barIdr    = giorno?.idr    || d.idr    || 'VERDE';
-  const barIdro   = giorno?.idro   || d.idro   || 'VERDE';
-  const barTemp   = giorno?.temp   || d.temp   || 'VERDE';
-  const barVento  = giorno?.vento  || d.vento  || null;
-  const barCalore = giorno?.calore || d.calore || null;
+  const agg = d.aggiornamento || {};
+  const oggi = d.oggi || {};
+  const domani = d.domani || {};
+  const giornoBarra = getAllertaGiorno(d) || oggi;
 
-  const bar = document.getElementById('allerta-bar');
-  bar.classList.add('visible');
-  bar.style.background = allertaBgColor(barIdr, barIdro, barTemp, barVento, barCalore);
-  updatePanelTop();
+  const getLvl = (obj, key) => (obj && obj[key]) ? obj[key] : "VERDE";
 
-  // Aggiorna i 5 bollini nella barra
-  const barVals = { idr: barIdr, idro: barIdro, temp: barTemp, vento: barVento, calore: barCalore };
-  ['idr','idro','temp','vento','calore'].forEach(k => {
-    const el = document.getElementById('bar-bollino-' + k);
-    if (el) el.style.background = ALLERTA_COLORS[barVals[k]] || '#64748b';
-  });
+  const barVals = {
+    idra: getLvl(giornoBarra, "idra"),
+    idro: getLvl(giornoBarra, "idro"),
+    temp: getLvl(giornoBarra, "temp"),
+    vent: getLvl(giornoBarra, "vent"),
+    calo: getLvl(giornoBarra, "calo"),
+  };
 
-  // Modal: intestazione
-  document.getElementById('allerta-periodo').textContent = d.periodo || '';
-  document.getElementById('allerta-meteo').textContent = d.meteo || '';
-  document.getElementById('allerta-suolo').textContent = d.suolo || '';
+  const barColor = allertaBgColor(
+    barVals.idra,
+    barVals.idro,
+    barVals.temp,
+    barVals.vent,
+    barVals.calo
+  );
 
-  // Modal: tabella rischi con colonne oggi/domani
-  const oggi   = d.oggi   || null;
-  const domani = d.domani || null;
-  const bc = v => ALLERTA_COLORS[v] || '#cbd5e1';
-  const RISCHI = [
-    { key: 'idr',    label: 'Idraulico' },
-    { key: 'idro',   label: 'Idrogeologico' },
-    { key: 'temp',   label: 'Temporali' },
-    { key: 'vento',  label: 'Vento' },
-    { key: 'calore', label: 'Calore' }
-  ];
-
-  let headerHtml = '';
-  if (oggi && domani) {
-    headerHtml = '<div class="allerta-days-header"><span class="spacer"></span><span class="day-col-hdr">Oggi</span><span class="day-col-hdr">Domani</span></div>';
+  const bar = document.getElementById("allerta-bar");
+  if (bar) {
+    bar.classList.add("visible");
+    bar.style.background = barColor;
   }
 
-  const rowsHtml = RISCHI.map(r => {
-    const vOggi   = oggi?.[r.key]   || null;
-    const vDomani = domani?.[r.key] || null;
-    const vAgg    = d[r.key]        || null;
-    if (oggi && domani) {
-      const colOggi   = `<div class="allerta-day-col"><div class="bollino-lg" style="background:${bc(vOggi)}"></div><span class="day-lbl">${vOggi || '—'}</span></div>`;
-      const colDomani = `<div class="allerta-day-col"><div class="bollino-lg" style="background:${bc(vDomani)}"></div><span class="day-lbl">${vDomani || '—'}</span></div>`;
-      return `<div class="allerta-row"><span class="label">${r.label}</span>${colOggi}${colDomani}</div>`;
-    } else if (vAgg) {
-      return `<div class="allerta-row"><span class="label">${r.label}</span><div class="allerta-day-col"><div class="bollino-lg" style="background:${bc(vAgg)}"></div><span class="day-lbl">${vAgg}</span></div></div>`;
-    }
-    return '';
-  }).filter(Boolean).join('');
+  [
+    ["idr", barVals.idra],
+    ["idro", barVals.idro],
+    ["temp", barVals.temp],
+    ["vento", barVals.vent],
+    ["calore", barVals.calo],
+  ].forEach(([k, v]) => {
+    const el = document.getElementById("bar-bollino-" + k);
+    if (el) el.style.background = ALLERTACOLORS[v] || "#cbd5e1";
+  });
 
-  document.getElementById('allerta-rows').innerHTML = headerHtml + rowsHtml;
+  const periodoEl = document.getElementById("allerta-periodo");
+  if (periodoEl) {
+    periodoEl.innerHTML = `
+      <strong>${agg.intestazione || "AVVISO DI ALLERTA"}</strong><br>
+      ${agg.num_boll ? `Bollettino ${agg.num_boll}` : ""}
+      ${(agg.data_compilazione || agg.ora_compilazione) ? "<br>" : ""}
+      ${[agg.data_compilazione, agg.ora_compilazione].filter(Boolean).join(" ")}
+    `;
+  }
+
+  const rowsEl = document.getElementById("allerta-rows");
+  if (rowsEl) {
+    const rows = [
+      ["Idraulico", "idra"],
+      ["Idrogeologico", "idro"],
+      ["Temporali", "temp"],
+      ["Vento", "vent"],
+      ["Calore", "calo"],
+    ];
+
+    rowsEl.innerHTML = `
+      <div class="allerta-days-header">
+        <span></span>
+        <span>Oggi</span>
+        <span>Domani</span>
+      </div>
+      ${rows.map(([label, key]) => `
+        <div class="allerta-row">
+          <span class="allerta-row-label">${label}</span>
+          <div class="allerta-day-col">
+            <div class="bollino-lg" style="background:${ALLERTACOLORS[getLvl(oggi, key)] || "#cbd5e1"}"></div>
+            <span class="day-lbl">${getLvl(oggi, key)}</span>
+          </div>
+          <div class="allerta-day-col">
+            <div class="bollino-lg" style="background:${ALLERTACOLORS[getLvl(domani, key)] || "#cbd5e1"}"></div>
+            <span class="day-lbl">${getLvl(domani, key)}</span>
+          </div>
+        </div>
+      `).join("")}
+    `;
+  }
+
+  const meteoEl = document.getElementById("allerta-meteo");
+  if (meteoEl) meteoEl.textContent = d.fenomeni_previsti || "";
+
+  const suoloEl = document.getElementById("allerta-suolo");
+  if (suoloEl) {
+    suoloEl.innerHTML = `
+      <p>${d.tendenza || ""}</p>
+      ${d.aggiornato ? `<p><em>Aggiornato: ${d.aggiornato}</em></p>` : ""}
+    `;
+  }
+
+  updatePanelTop();
   setTimeout(() => map.invalidateSize(), 300);
 }
 	
