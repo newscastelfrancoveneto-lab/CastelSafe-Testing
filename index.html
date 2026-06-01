@@ -4231,44 +4231,56 @@ if ('serviceWorker' in navigator) {
 }
 	
 // ── BARRA ALLERTA ─────────────────────────────────────────────────────────────
-const ALLERTA_COLORS = { VERDE: '#10b981', GIALLO: '#eab308', ARANCIONE: '#f97316', ROSSO: '#ef4444' };
-const ALLERTA_ORDER  = ['VERDE', 'GIALLO', 'ARANCIONE', 'ROSSO'];
+const ALLERTACOLORS = {
+  VERDE: "#16a34a",
+  GIALLO: "#eab308",
+  ARANCIONE: "#f97316",
+  ROSSO: "#ef4444",
+  GRIGIO: "#94a3b8"
+};
+	
+const ALLERTAORDER = ["VERDE", "GIALLO", "ARANCIONE", "ROSSO"];
 
-function allertaBgColor(idr, idro, temp, vento, calore) {
-  const all = [idr, idro, temp, vento, calore].filter(Boolean);
-  if (!all.length) return '#64748b';
-  const max = all.reduce((a, b) => ALLERTA_ORDER.indexOf(b) > ALLERTA_ORDER.indexOf(a) ? b : a, 'VERDE');
-  return ALLERTA_COLORS[max] || '#64748b';
+function allertaBgColor(idra, idro, temp, vent, calo) {
+  const vals = [idra, idro, temp, vent, calo]
+    .map(v => (v || "VERDE").toUpperCase());
+
+  if (vals.includes("ROSSO")) return ALLERTACOLORS.ROSSO;
+  if (vals.includes("ARANCIONE")) return ALLERTACOLORS.ARANCIONE;
+  if (vals.includes("GIALLO")) return ALLERTACOLORS.GIALLO;
+  if (vals.includes("VERDE")) return ALLERTACOLORS.VERDE;
+  return ALLERTACOLORS.GRIGIO;
 }
 
 // Restituisce i dati del giorno corrente da mostrare nella barra
 // Se siamo ancora nella giornata di "oggi" del bollettino → d.oggi
 // Se il giorno del bollettino è già passato → d.domani
 function getAllertaGiorno(d) {
-  if (!d || !d.oggi || !d.domani) return d;
-  const periodoOggi = d.oggi.periodo || '';
-  const match = periodoOggi.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-  if (!match) return d.oggi;
-  const now = new Date();
-  const oggiDate = new Date(parseInt(match[3]), parseInt(match[2])-1, parseInt(match[1]));
-  const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  return oggiDate.getTime() === todayDate.getTime() ? d.oggi : d.domani;
+  if (!d) return {};
+  const oggi = d.oggi || {};
+  const domani = d.domani || {};
+
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2, "0");
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const yyyy = today.getFullYear();
+  const todayStr = `${dd}/${mm}/${yyyy}`;
+
+  if ((oggi.periodo || "").includes(todayStr)) return oggi;
+  return domani || oggi;
 }
 
 let lastAllertaSignature = null;
 
 function getAllertaSignature(data) {
+  if (!data) return "";
   return JSON.stringify({
-    idr: data?.idr || null,
-    idro: data?.idro || null,
-    temp: data?.temp || null,
-    vento: data?.vento || null,
-    calore: data?.calore || null,
-    periodo: data?.periodo || null,
-    meteo: data?.meteo || null,
-    suolo: data?.suolo || null,
-    oggi: JSON.stringify(data?.oggi || null),
-    domani: JSON.stringify(data?.domani || null)
+    aggiornamento: data.aggiornamento || {},
+    oggi: data.oggi || {},
+    domani: data.domani || {},
+    fenomeni_previsti: data.fenomeni_previsti || "",
+    tendenza: data.tendenza || "",
+    aggiornato: data.aggiornato || ""
   });
 }
 
