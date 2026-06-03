@@ -16,6 +16,59 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
   <style>
+
+		.allerta-days-header {
+		  display: grid;
+		  grid-template-columns: 1fr 72px 72px;
+		  gap: 8px;
+		  margin-bottom: 8px;
+		  padding: 0 14px;
+		  font-size: 0.72rem;
+		  font-weight: 800;
+		  text-transform: uppercase;
+		  letter-spacing: 0.05em;
+		  color: var(--text-muted);
+		  text-align: center;
+		}
+		
+		.allerta-row {
+		  display: grid;
+		  grid-template-columns: 1fr 72px 72px;
+		  align-items: center;
+		  gap: 8px;
+		  padding: 12px 14px;
+		  border-radius: var(--radius-md);
+		  margin-bottom: 8px;
+		  background: #f8fafc;
+		  border: 1px solid #e2e8f0;
+		}
+		
+		.allerta-row-label {
+		  font-size: 0.85rem;
+		  font-weight: 700;
+		  color: var(--text-main);
+		}
+		
+		.allerta-day-col {
+		  display: flex;
+		  flex-direction: column;
+		  align-items: center;
+		  gap: 2px;
+		}
+		
+		.bollino-lg {
+		  width: 22px;
+		  height: 22px;
+		  border-radius: 50%;
+		  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+		}
+		
+		.day-lbl {
+		  font-size: 0.72rem;
+		  font-weight: 800;
+		  text-transform: uppercase;
+		  line-height: 1;
+		}
   
 	.info-intro-box {
 	  background: #f8fafc;
@@ -261,6 +314,39 @@
 	    background: #f8fafc;
 	    border: 1px solid #e2e8f0;
 	    border-radius: 12px;
+	}
+
+	@media (max-width: 640px) {
+	  .allerta-days-header {
+	    padding: 0 10px;
+	    grid-template-columns: 1fr 62px 62px;
+	    gap: 6px;
+	    text-align: center;
+	  }
+	
+	  .allerta-row {
+	    padding: 11px 10px;
+	    grid-template-columns: 1fr 62px 62px;
+	    gap: 6px;
+	  }
+	
+	  .allerta-row-label {
+	    font-size: 0.82rem;
+	  }
+	
+	  .allerta-day-col {
+	    transform: translateX(-4px);
+	    gap: 1px;
+	  }
+	
+	  .bollino-lg {
+	    width: 20px;
+	    height: 20px;
+	  }
+	
+	  .day-lbl {
+	    font-size: 0.66rem;
+	  }
 	}
 	
 	@media (max-width: 640px) {
@@ -886,14 +972,9 @@
     
     .info-area-badge { display: inline-block; border-radius: 6px; padding: 3px 8px; font-size: 0.75rem; font-weight: 700; color: #fff; margin-right: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-    .allerta-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-md); margin-bottom: 8px; background: #f8fafc; border: 1px solid #e2e8f0; }
-    .allerta-row .label { font-size: 0.82rem; font-weight: 600; color: var(--text-main); flex: 1; min-width: 0; }
-    .allerta-day-col { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; width: 40px; }
-    .allerta-day-col .bollino-lg { width: 24px; height: 24px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
-    .allerta-day-col .day-lbl { font-size: 0.62rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
-    .allerta-days-header { display: flex; align-items: center; gap: 10px; padding: 0 14px 6px 14px; }
-    .allerta-days-header .day-col-hdr { font-size: 0.68rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; text-align: center; width: 40px; flex-shrink: 0; }
-    .allerta-days-header .spacer { flex: 1; }
+    .allerta-row .bollino-lg { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .allerta-row .label { font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
+    .allerta-row .livello { font-size: 0.85rem; font-weight: 800; margin-left: auto; text-transform: uppercase; }
     
     .allerta-section-title {
 		  font-size: 0.74rem;
@@ -973,14 +1054,14 @@
 
 <div id="app">
 
-  <div id="allerta-bar" onclick="document.getElementById('allerta-modal').classList.add('open')">
-    <div id="allerta-bar-inner">
-      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-idr"></div><span id="bar-label-idr">Idr.</span></div>
-      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-idro"></div><span id="bar-label-idro">Idrog.</span></div>
-      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-temp"></div><span id="bar-label-temp">Temp.</span></div>
-      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-vento"></div><span id="bar-label-vento">Vento</span></div>
-      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-calore"></div><span id="bar-label-calore">Calore</span></div>
-    </div>
+   <div id="allerta-bar" onclick="document.getElementById('allerta-modal').classList.add('open')">
+	    <div id="allerta-bar-inner">
+	      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-idr"></div><span id="bar-label-idr">Idra.</span></div>
+	      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-idro"></div><span id="bar-label-idro">Idro.</span></div>
+	      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-temp"></div><span id="bar-label-temp">Temp.</span></div>
+	      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-vento"></div><span id="bar-label-vento">Vento</span></div>
+	      <div class="allerta-bollino-wrap"><div class="allerta-bollino" id="bar-bollino-calore"></div><span id="bar-label-calore">Calore</span></div>
+	    </div>
     <!--<span id="allerta-bar-title">Allerta ARPAV</span> -->
     <span id="allerta-bar-chevron">
       <span class="allerta-open-label">Dettagli</span>
@@ -1007,9 +1088,9 @@
 	  <h2>Bollettino Protezione Civile Regionale</h2>
       <div class="periodo" id="allerta-periodo">—</div>
       <div id="allerta-rows"></div>
-      <div class="allerta-section-title">🌦️ Previsione Meteo</div>
+      <div class="allerta-section-title">Previsione Meteo</div>
       <div class="allerta-section-body" id="allerta-meteo">—</div>
-      <div class="allerta-section-title">🌍 Effetti al Suolo</div>
+      <div class="allerta-section-title">Tendenze</div>
       <div class="allerta-section-body" id="allerta-suolo">—</div>
     </div>
   </div>
@@ -1319,6 +1400,10 @@
 
   <div class="fab-container">
     
+	<button onclick="shareCastelSafe()" class="fab-btn" title="Condividi CastelSafe" aria-label="Condividi CastelSafe">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.59 13.51 15.42 17.49"></path><path d="M15.41 6.51 8.59 10.49"></path></svg>
+    </button>
+
 	<button onclick="toggleNotificationsMenu()" class="fab-btn" title="Notifiche">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
     </button>
@@ -1412,7 +1497,35 @@ function apiFetch(pathOrUrl, options = {}) {
 const XML_URL = 'https://www.arpa.veneto.it/api/risorse/data-meteo/xml/Ultime48ore.xml';
 const CSV_BASE = `${API_BASE}/api/arpav/xml/`;
 const OSM_API = 'https://api.openstreetmap.org/api/0.6/node/';
-const VAPID_PUBLIC = 'BEzNrOFRNEPdjown9Tnj2pYnQ-v464zvxjFwE_B5PEqSNIloti9MafJKsBHU1LjxTW9U2UX8TqvhP0ydySOl8Qk';
+const SHARE_TEXT = `Scarica ora CastelSafe, l'app per ricevere bollettini di protezione civile, consultare le stazioni arpav e tanto altro ancora`;
+      const SHARE_URL = 'https://newscastelfrancoveneto-lab.github.io/CastelSafe/';
+      async function shareCastelSafe() {
+        const shareData = { title: 'CastelSafe', text: SHARE_TEXT, url: SHARE_URL };
+        try {
+          if (navigator.share) {
+            await navigator.share(shareData);
+            return;
+          }
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(SHARE_TEXT);
+            alert('Testo di condivisione copiato negli appunti. Ora puoi incollarlo dove preferisci.');
+            return;
+          }
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
+        }
+        const temp = document.createElement('textarea');
+        temp.value = SHARE_TEXT;
+        temp.setAttribute('readonly', '');
+        temp.style.position = 'fixed';
+        temp.style.opacity = '0';
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        alert('Testo di condivisione copiato negli appunti. Ora puoi incollarlo dove preferisci.');
+      }
+      const VAPID_PUBLIC = 'BEzNrOFRNEPdjown9Tnj2pYnQ-v464zvxjFwE_B5PEqSNIloti9MafJKsBHU1LjxTW9U2UX8TqvhP0ydySOl8Qk';
 
 const STATIONS = [
   {
@@ -2464,40 +2577,54 @@ function readLocalClosureAlerts() {
 }
 
 async function loadClosureAlerts() {
-  try {
-    const response = await apiFetch('/api/closures', { cache: 'no-store' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const CLOSURES_URL = withNgrokBypass(API_BASE + '/api/closures');
+  const fetchAttempts = [
+    () => fetch(CLOSURES_URL, { cache: 'no-store', headers: { Accept: 'application/json', 'ngrok-skip-browser-warning': 'true' } }),
+    () => fetch(CLOSURES_URL, { cache: 'no-store', headers: { Accept: 'application/json', 'ngrok-skip-browser-warning': 'true', 'Authorization': '' } })
+  ];
 
-    const serverData = await response.json();
-
-    if (serverData && Array.isArray(serverData.features)) {
-      localStorage.setItem(CLOSURE_ALERT_STORAGE_KEY, JSON.stringify(serverData));
-      renderClosureAlerts(serverData);
-      return;
-    }
-
-    throw new Error('GeoJSON non valido');
-  } catch (err) {
-    console.warn('API chiusure non raggiungibile, uso cache locale:', err);
-
+  let serverData = null;
+  for (const attempt of fetchAttempts) {
     try {
-      const cachedRaw = localStorage.getItem(CLOSURE_ALERT_STORAGE_KEY);
-      if (!cachedRaw) {
-        renderClosureAlerts({ type: 'FeatureCollection', features: [] });
-        return;
+      const response = await attempt();
+      if (!response.ok) continue;
+      const payload = await response.json();
+      let fc;
+      if (payload && payload.type === 'FeatureCollection' && Array.isArray(payload.features)) {
+        fc = payload;
+      } else if (Array.isArray(payload)) {
+        fc = { type: 'FeatureCollection', features: payload };
+      } else {
+        continue;
       }
+      serverData = fc;
+      break;
+    } catch (err) {
+      console.info('Tentativo fetch chiusure fallito, provo prossimo...', err);
+    }
+  }
 
+  if (serverData) {
+    localStorage.setItem(CLOSURE_ALERT_STORAGE_KEY, JSON.stringify(serverData));
+    renderClosureAlerts(serverData);
+    return;
+  }
+
+  // Fallback: cache locale
+  console.warn('API chiusure non raggiungibile, uso cache locale');
+  try {
+    const cachedRaw = localStorage.getItem(CLOSURE_ALERT_STORAGE_KEY);
+    if (cachedRaw) {
       const cachedData = JSON.parse(cachedRaw);
       if (cachedData && Array.isArray(cachedData.features)) {
         renderClosureAlerts(cachedData);
         return;
       }
-    } catch (cacheErr) {
-      console.warn('Cache chiusure non valida:', cacheErr);
     }
-
-    renderClosureAlerts({ type: 'FeatureCollection', features: [] });
+  } catch (cacheErr) {
+    console.warn('Cache chiusure non valida:', cacheErr);
   }
+  renderClosureAlerts({ type: 'FeatureCollection', features: [] });
 }
 
 function toggleClosureAlerts(visible) {
@@ -4224,37 +4351,29 @@ initGlobalRefreshScheduler();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/PC_APP/sw.js')
+    navigator.serviceWorker.register('/CastelSafe/sw.js')
       .then(reg => console.log('Service Worker registrato!'))
       .catch(err => console.error('Errore registrazione SW', err));
   });
 }
 	
 // ── BARRA ALLERTA ─────────────────────────────────────────────────────────────
-const ALLERTACOLORS = {
-  VERDE: "#16a34a",
-  GIALLO: "#eab308",
-  ARANCIONE: "#f97316",
-  ROSSO: "#ef4444",
-  GRIGIO: "#94a3b8"
-};
-	
-const ALLERTAORDER = ["VERDE", "GIALLO", "ARANCIONE", "ROSSO"];
+const ALLERTA_COLORS = { VERDE: '#10b981', GIALLO: '#eab308', ARANCIONE: '#f97316', ROSSO: '#ef4444' };
+const ALLERTA_ORDER  = ['VERDE', 'GIALLO', 'ARANCIONE', 'ROSSO'];
 
 function allertaBgColor(idra, idro, temp, vent, calo) {
   const vals = [idra, idro, temp, vent, calo]
     .map(v => (v || "VERDE").toUpperCase());
 
-  if (vals.includes("ROSSO")) return ALLERTACOLORS.ROSSO;
-  if (vals.includes("ARANCIONE")) return ALLERTACOLORS.ARANCIONE;
-  if (vals.includes("GIALLO")) return ALLERTACOLORS.GIALLO;
-  if (vals.includes("VERDE")) return ALLERTACOLORS.VERDE;
-  return ALLERTACOLORS.GRIGIO;
+  if (vals.includes("ROSSO")) return ALLERTA_COLORS.ROSSO;
+  if (vals.includes("ARANCIONE")) return ALLERTA_COLORS.ARANCIONE;
+  if (vals.includes("GIALLO")) return ALLERTA_COLORS.GIALLO;
+  if (vals.includes("VERDE")) return ALLERTA_COLORS.VERDE;
+  return ALLERTA_COLORS.GRIGIO;
 }
 
-// Restituisce i dati del giorno corrente da mostrare nella barra
-// Se siamo ancora nella giornata di "oggi" del bollettino → d.oggi
-// Se il giorno del bollettino è già passato → d.domani
+let lastAllertaSignature = null;
+
 function getAllertaGiorno(d) {
   if (!d) return {};
   const oggi = d.oggi || {};
@@ -4269,9 +4388,7 @@ function getAllertaGiorno(d) {
   if ((oggi.periodo || "").includes(todayStr)) return oggi;
   return domani || oggi;
 }
-
-let lastAllertaSignature = null;
-
+	
 function getAllertaSignature(data) {
   if (!data) return "";
   return JSON.stringify({
@@ -4324,7 +4441,7 @@ function renderAllerta(d) {
     ["calore", barVals.calo],
   ].forEach(([k, v]) => {
     const el = document.getElementById("bar-bollino-" + k);
-    if (el) el.style.background = ALLERTACOLORS[v] || "#cbd5e1";
+    if (el) el.style.background = ALLERTA_COLORS[v] || "#cbd5e1";
   });
 
   const periodoEl = document.getElementById("allerta-periodo");
@@ -4342,31 +4459,31 @@ function renderAllerta(d) {
     const rows = [
       ["Idraulico", "idra"],
       ["Idrogeologico", "idro"],
-      ["Temporali", "temp"],
+      ["Idrogeologico per Temporali", "temp"],
       ["Vento", "vent"],
-      ["Calore", "calo"],
+      ["Ondate di calore", "calo"],
     ];
 
-    rowsEl.innerHTML = `
-      <div class="allerta-days-header">
-        <span></span>
-        <span>Oggi</span>
-        <span>Domani</span>
-      </div>
-      ${rows.map(([label, key]) => `
-        <div class="allerta-row">
-          <span class="allerta-row-label">${label}</span>
-          <div class="allerta-day-col">
-            <div class="bollino-lg" style="background:${ALLERTACOLORS[getLvl(oggi, key)] || "#cbd5e1"}"></div>
-            <span class="day-lbl">${getLvl(oggi, key)}</span>
-          </div>
-          <div class="allerta-day-col">
-            <div class="bollino-lg" style="background:${ALLERTACOLORS[getLvl(domani, key)] || "#cbd5e1"}"></div>
-            <span class="day-lbl">${getLvl(domani, key)}</span>
-          </div>
-        </div>
-      `).join("")}
-    `;
+	rowsEl.innerHTML = `
+	  <div class="allerta-days-header">
+	    <span></span>
+	    <span>Oggi</span>
+	    <span>Domani</span>
+	  </div>
+	  ${rows.map(([label, key]) => `
+	    <div class="allerta-row">
+	      <span class="allerta-row-label"><strong>${label}</strong></span>
+	      <div class="allerta-day-col">
+	        <div class="bollino-lg" style="background:${ALLERTA_COLORS[getLvl(oggi, key)] ?? '#cbd5e1'}"></div>
+	        <span class="day-lbl"><strong>${getLvl(oggi, key)}</strong></span>
+	      </div>
+	      <div class="allerta-day-col">
+	        <div class="bollino-lg" style="background:${ALLERTA_COLORS[getLvl(domani, key)] ?? '#cbd5e1'}"></div>
+	        <span class="day-lbl"><strong>${getLvl(domani, key)}</strong></span>
+	      </div>
+	    </div>
+	  `).join('')}
+	`;
   }
 
   const meteoEl = document.getElementById("allerta-meteo");
